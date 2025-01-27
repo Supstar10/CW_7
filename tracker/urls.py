@@ -12,4 +12,5 @@ app_name = TrackerConfig.name
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('habits/create/', HabitViewSet.as_view({'post': 'create'}), name='habit-create'),
 ]

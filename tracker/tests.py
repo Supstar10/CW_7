@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
@@ -27,9 +28,9 @@ class HabitAPITestCase(APITestCase):
         )
 
     @patch('telegram.Bot.get_me')
-    def test_create_habit(self):
+    def test_create_habit(self, mock_get_me):
         # Ваш код для создания привычки
-        url = '/habits/'
+        url = reverse("tracker:habit-create")
         data = {
             'place': "test",
             'time': "06:00:00",
@@ -50,7 +51,7 @@ class HabitAPITestCase(APITestCase):
     def test_list_habits(self, mock_get_me):
         mock_get_me.return_value = {'id': 12345, 'first_name': 'TestBot'}
 
-        url = '/habits/'
+        url = reverse("tracker:habit-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
@@ -59,7 +60,7 @@ class HabitAPITestCase(APITestCase):
     def test_update_habit(self, mock_get_me):
         mock_get_me.return_value = {'id': 12345, 'first_name': 'TestBot'}
 
-        url = f'/habits/{self.habit.id}/'
+        url = reverse("tracker:habit-detail", kwargs={'pk': self.habit.id})
         data = {'place': "updated_place", 'duration': 120}
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -70,5 +71,6 @@ class HabitAPITestCase(APITestCase):
     def test_delete_habit(self, mock_get_me):
         mock_get_me.return_value = {'id': 12345, 'first_name': 'TestBot'}
 
-        url = f'/habits/{self.habit.id}/'
-        response = self.client.delete
+        url = reverse("tracker:habit-detail", kwargs={'pk': self.habit.id})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
