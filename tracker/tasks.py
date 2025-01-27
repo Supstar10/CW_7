@@ -1,7 +1,7 @@
 from celery import shared_task
 from config.telegram_bot import bot
 
-from habits.models import Habit
+from tracker.models import Habit
 
 
 @shared_task

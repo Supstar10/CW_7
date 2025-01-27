@@ -5,7 +5,6 @@ from rest_framework.exceptions import PermissionDenied
 from tracker.models import Habit
 from tracker.paginations import HabitPagination
 from tracker.serializers import HabitSerializer
-from django.db.models import Q
 
 
 class HabitViewSet(viewsets.ModelViewSet):
@@ -31,5 +30,16 @@ class HabitViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Пожалуйста, авторизуйтесь для доступа.")
 
         if self.action == 'list':
-            return Habit.objects.filter(Q(user=user) | Q(is_public=True)).distinct()
-        return Habit.objects.filter(user=user)
+            return Habit.objects.filter(is_public=True).distinct()
+        return Habit.objects.filter(user=user).distinct()
+
+
+class PublicHabitViewSet(HabitViewSet):
+    """ ViewSet для работы с публичными привычками. """
+
+    def get_queryset(self):
+        """ Ограничиваем видимость:
+            - только публичные привычки
+        """
+
+        return Habit.objects.filter(is_public=True).distinct()
