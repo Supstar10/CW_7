@@ -1,12 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import User
 
 NULLABLE = {'blank': True, 'null': True}
 
 
 class Habit(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь')
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь')
     place = models.CharField(max_length=255, verbose_name='Место')
     time = models.TimeField(verbose_name='Время выполнения')
     action = models.CharField(max_length=255, verbose_name='Действие')

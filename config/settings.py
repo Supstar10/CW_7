@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,6 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-uj3(@q=qip@t8kj1^belzb3^e-n#6^_o$z4xx(u(*$-c0iinsd'
 
 DEBUG = True
+
+
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
@@ -118,3 +122,13 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    'send-daily-reminders': {
+        'task': 'tracker.tasks.schedule_reminders',
+        'schedule': crontab(hour="0", minute="0"),  # Выполнять ежедневно в 00:00
+    },
+}
+
+AUTH_USER_MODEL = 'users.User'

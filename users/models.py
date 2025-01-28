@@ -1,7 +1,20 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import User
+
+NULLABLE = {'blank': True, 'null': True}
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    telegram_id = models.CharField(max_length=50, blank=True, null=True)
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True, verbose_name='Электронная почта')
+    telegram_id = models.CharField(max_length=100, verbose_name='Telegram Chat ID', **NULLABLE)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def str(self):
+        return self.email
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
