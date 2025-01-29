@@ -1,5 +1,5 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.exceptions import PermissionDenied
 from tracker.models import Habit
@@ -9,7 +9,6 @@ from tracker.serializers import HabitSerializer
 
 class HabitViewSet(viewsets.ModelViewSet):
     """ ViewSet для работы с привычками. """
-
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
     pagination_class = HabitPagination
@@ -20,26 +19,20 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """ Ограничиваем видимость:
-            - только свои привычки
-            - публичные привычки других пользователей
+        - только свои привычки
         """
-
         user = self.request.user
-
         if user.is_anonymous:
             raise PermissionDenied("Пожалуйста, авторизуйтесь для доступа.")
 
-        if self.action == 'list':
-            return Habit.objects.filter(is_public=True).distinct()
         return Habit.objects.filter(user=user).distinct()
 
 
-class PublicHabitViewSet(HabitViewSet):
-    """ ViewSet для работы с публичными привычками. """
-
-    def get_queryset(self):
-        """ Ограничиваем видимость:
-            - только публичные привычки
-        """
-
-        return Habit.objects.filter(is_public=True).distinct()
+class PublicHabitListView(generics.ListAPIView):
+    """ Представление для получения списка публичных привычек. """
+    queryset = Habit.objects.filter(is_public=True)
+    serializer_class = HabitSerializer
+    permission_classes = [AllowAny]  # Разрешаем доступ всем пользователям (включая анонимных)
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['action', 'place']
+    ordering_fields = ['time', 'period']

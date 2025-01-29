@@ -127,7 +127,7 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'send-daily-reminders': {
         'task': 'tracker.tasks.schedule_reminders',
-        'schedule': crontab(hour="0", minute="0"),  # Выполнять ежедневно в 00:00
+        'schedule': crontab(minute='*/5'),  # Выполнять каждые 5 минут
     },
 }
 
